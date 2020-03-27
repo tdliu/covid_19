@@ -65,10 +65,7 @@ st.markdown("Add or remove counties and states below. There are additional optio
 options_counties = st.multiselect("Counties", counties,
                                   default=['San Francisco', 'Los Angeles'])
 options_states = st.multiselect('States', states, default='California')
-
-# Side bar options
 start_date = st.date_input('Start date', datetime.date(2020, 3, 1))
-
 category = st.radio("Category", ('Cases', 'Deaths'))
 
 
