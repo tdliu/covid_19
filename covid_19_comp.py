@@ -51,13 +51,13 @@ def format_display_data(counties_df, states):
     disp_df['delta'] = 100 * (disp_df['cases_x'] - disp_df['cases_y']) / disp_df['cases_y']
     disp_df = disp_df[['county', 'state', 'cases_x', 'cases_last_day', 'delta']]
     disp_df.columns = ['County', 'State', 'Cases', 'Cases last day', '% change']
-    disp_df = disp_df.sort_values(by='Cases', ascending=False)
+    disp_df = disp_df.sort_values(by='Cases', ascending=False).reset_index()
     return disp_df
 
 
 disp_df = format_display_data(counties_df, options_states)
 
-st.dataframe(disp_df.style.highlight_max(axis=0), height=150)
+st.dataframe(disp_df.style.highlight_max(axis=0), height=275)
 
 # Widgets
 st.subheader("Compare counties and states")
