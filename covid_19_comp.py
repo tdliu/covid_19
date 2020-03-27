@@ -1,5 +1,4 @@
 import streamlit as st
-import requests
 import datetime
 import altair as alt
 import pandas as pd
@@ -68,9 +67,9 @@ options_counties = st.multiselect("Counties", counties,
 options_states = st.multiselect('States', states, default='California')
 
 # Side bar options
-start_date = st.sidebar.date_input('Start date', datetime.date(2020, 3, 1))
+start_date = st.date_input('Start date', datetime.date(2020, 3, 1))
 
-category = st.sidebar.radio("Category", ('Cases', 'Deaths'))
+category = st.radio("Category", ('Cases', 'Deaths'))
 
 
 @st.cache
