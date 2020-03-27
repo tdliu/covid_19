@@ -31,7 +31,7 @@ counties = sorted(list(set(data_pd['geography'])))
 counties.remove('BAY AREA')
 counties.remove('CALIFORNIA')
 
-options_counties = st.multiselect("CA Counties", counties, default=['San Francisco County', 'Los Angeles County'])
+options_counties = st.multiselect("CA Counties (add or remove with selector below)", counties, default=['San Francisco County', 'Los Angeles County'])
 geo_ms = st.multiselect('Other regions:', ('CALIFORNIA', 'BAY AREA'), default='BAY AREA')
 options_counties.extend(geo_ms)
 category_radio = st.radio("Category", ('Cases', 'Deaths'))
