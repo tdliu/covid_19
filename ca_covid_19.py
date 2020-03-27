@@ -92,13 +92,6 @@ def format_plot_data(counties_df, counties, states_df, states):
 
 plot_df = format_plot_data(counties_df, options_counties, states_df, options_states)
 if category == 'Cases':
-    st.subheader("New cases")
-    alt_lc = alt.Chart(plot_df).mark_line().encode(
-        x=alt.X('date', axis=alt.Axis(title='Date')),
-        y=alt.Y('cases', axis=alt.Axis(title='Count')),
-        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white'))
-    )
-    st.altair_chart(alt_lc, use_container_width=True)
 
     st.subheader("Cumulative cases")
     alt_lc = alt.Chart(plot_df).mark_line().encode(
@@ -108,13 +101,6 @@ if category == 'Cases':
     )
     st.altair_chart(alt_lc, use_container_width=True)
 else:
-    st.subheader("New deaths")
-    alt_lc = alt.Chart(plot_df).mark_line().encode(
-        x=alt.X('date', axis=alt.Axis(title='Date')),
-        y=alt.Y('deaths', axis=alt.Axis(title='Count')),
-        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white'))
-    )
-    st.altair_chart(alt_lc, use_container_width=True)
 
     st.subheader("Cumulative deaths")
     alt_lc = alt.Chart(plot_df).mark_line().encode(
