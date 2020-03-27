@@ -21,7 +21,7 @@ states_df = pd.read_csv(states_data_url)
 states_df['date'] = pd.to_datetime(states_df['date'])
 
 # Headings
-st.header("FIXING!! Compare spread of Covid-19 among US counties")
+st.header("Compare spread of Covid-19 among US counties")
 st.markdown("""
     This is not meant to be a comprehensive dashboard. I made this because I wanted an easy way to compare
     how coronavirus has spread at a more granular level. Thankfully, New York Times is publishing 
