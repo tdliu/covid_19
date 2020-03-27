@@ -51,7 +51,7 @@ def format_plot_data(raw_df, geos, category='cases'):
                 (raw_df['date'] <= max(
                     raw_df['date']))]  # Remove most recent date since some counties haven't updated yet
     df['cum_value'] = df.sort_values(['geography', 'date'], ascending=True).groupby('geography')['value'].cumsum()
-    df = df[df['date'] > start_date]  # '2020-02-20']  # Remove early dates without much data
+    df = df[df['date'] > pd.to_datetime(start_date)]  # '2020-02-20']  # Remove early dates without much data
     return df
 
 
