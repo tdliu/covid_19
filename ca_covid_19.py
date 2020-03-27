@@ -106,3 +106,8 @@ alt_lc = alt.Chart(filtered_df).mark_line().encode(
     color=alt.Color('geography', legend=alt.Legend(orient="top-left", fillColor='white'))
 )
 st.altair_chart(alt_lc, use_container_width=True)
+
+st.write("----------")
+st.write("""
+    By [Tony Liu] (https://twitter.com/tdliu) | source: [GitHub] (https://github.com/tdliu/covid_19) | data source [SF Chronicle] (https://projects.sfchronicle.com/2020/coronavirus-map/)
+""")
