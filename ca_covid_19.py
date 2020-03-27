@@ -13,6 +13,7 @@ counties_df['date'] = pd.to_datetime(counties_df['date'])
 counties_df = counties_df[counties_df.county != 'Unknown']  # removing cases that have unknown counties
 counties = sorted(list(set(counties_df['county'])))
 states = sorted(list(set(counties_df['state'])))
+curr_date = max(counties_df['date'])
 
 # State data
 states_data_url = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"
@@ -32,6 +33,32 @@ st.write('Data as of', max(counties_df['date']).strftime("%B %d, %Y"))
 
 # Dataframe of counties with most cases
 
+# Display data frame
+st.subheader("Counties with most cases")
+st.markdown("Filter states by selecting below. Clear options to see all states.")
+options_states = st.multiselect("States", states, default=['California', 'New York', 'Washington'])
+
+
+@st.cache
+def format_display_data(counties_df, states):
+    if len(options_states) == 0:
+        disp_df = counties_df
+    else:
+        disp_df = counties_df[counties_df['state'].isin(states)]
+    disp_df = disp_df[disp_df['date'] == curr_date]
+    disp_df2 = counties_df[(counties_df['date'] == max(counties_df['date']) - datetime.timedelta(days=1))]
+    disp_df = disp_df.merge(disp_df2[['county', 'state', 'cases', 'deaths']], on=['county', 'state'])
+    disp_df['cases_last_day'] = disp_df['cases_x'] - disp_df['cases_y']
+    disp_df['delta'] = 100 * (disp_df['cases_x'] - disp_df['cases_y']) / disp_df['cases_y']
+    disp_df = disp_df[['county', 'state', 'cases_x', 'cases_last_day', 'delta']]
+    disp_df.columns = ['County', 'State', 'Cases', 'Cases last day', '% change']
+    disp_df = disp_df.sort_values(by='Cases', ascending=False)
+    return disp_df
+
+
+disp_df = format_display_data(counties_df, options_states)
+
+st.dataframe(disp_df.style.highlight_max(axis=0), height=150)
 
 # Widgets
 st.subheader("Compare counties and states")
@@ -49,35 +76,52 @@ category = st.sidebar.radio("Category", ('Cases', 'Deaths'))
 @st.cache
 def format_plot_data(counties_df, counties, states_df, states):
     df = counties_df[
-        (counties_df['county'].isin(counties))]  # Remove most recent date since some counties haven't updated yet
+        (counties_df['county'].isin(counties))]
     df.rename(columns={"county": "geo"}, inplace=True)
     df.drop(columns=['state', 'fips'], inplace=True)
     df2 = states_df[(states_df['state'].isin(states))]
     df2.rename(columns={"state": "geo"}, inplace=True)
     df2.drop(columns=['fips'], inplace=True)
     df = df.append(df2, ignore_index=True)
-    df['cases_cum_value'] = df.sort_values(['geo', 'date'], ascending=True).groupby('geo')['cases'].cumsum()
-    df['deaths_cum_value'] = df.sort_values(['geo', 'date'], ascending=True).groupby('geo')['deaths'].cumsum()
-    df = df[df['date'] > pd.to_datetime(start_date)]  # '2020-02-20']  # Remove early dates without much data
+    df['previous_date'] = df['date'] - datetime.timedelta(days=1)
+    df = pd.merge(df, df, left_on=['previous_date', 'geo'], right_on=['date', 'geo'])
+    df['new_cases'] = df['cases_x'] - df['cases_y']
+    df['new_deaths'] = df['deaths_x'] - df['deaths_y']
+    df = df[['date_x', 'geo', 'cases_x', 'deaths_x', 'new_cases', 'new_deaths']]
+    df.columns = ['date', 'geo', 'total_cases', 'total_deaths', 'new_cases', 'new_deaths']
     return df
 
 
 plot_df = format_plot_data(counties_df, options_counties, states_df, options_states)
 if category == 'Cases':
+    st.subheader("New cases")
+    alt_lc = alt.Chart(plot_df).mark_line().encode(
+        x=alt.X('date', axis=alt.Axis(title='Date')),
+        y=alt.Y('new_cases', axis=alt.Axis(title='Count')),
+        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white'))
+    )
+    st.altair_chart(alt_lc, use_container_width=True)
 
     st.subheader("Cumulative cases")
     alt_lc = alt.Chart(plot_df).mark_line().encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
-        y=alt.Y('cases_cum_value', axis=alt.Axis(title='Count')),
+        y=alt.Y('total_cases', axis=alt.Axis(title='Count')),
         color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white'))
     )
     st.altair_chart(alt_lc, use_container_width=True)
 else:
-
-    st.subheader("Cumulative deaths")
+    st.subheader("New deaths")
     alt_lc = alt.Chart(plot_df).mark_line().encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
-        y=alt.Y('deaths_cum_value', axis=alt.Axis(title='Count')),
+        y=alt.Y('new_deaths', axis=alt.Axis(title='Count')),
+        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white'))
+    )
+    st.altair_chart(alt_lc, use_container_width=True)
+
+    st.subheader("Total deaths")
+    alt_lc = alt.Chart(plot_df).mark_line().encode(
+        x=alt.X('date', axis=alt.Axis(title='Date')),
+        y=alt.Y('total_deaths', axis=alt.Axis(title='Count')),
         color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white'))
     )
     st.altair_chart(alt_lc, use_container_width=True)
