@@ -37,7 +37,7 @@ display_df = display_df.pivot(index='geography', columns='category', values='val
 # Get cases in last 3 days
 last_3_df = data_pd
 last_3_df = last_3_df[
-    (last_3_df['date'] > datetime.datetime.today() - datetime.timedelta(days=3)) & (last_3_df['category'] == 'cases')]
+    (last_3_df['date'] > datetime.datetime.now() - datetime.timedelta(hours=72)) & (last_3_df['category'] == 'cases')]
 last_3_df = last_3_df.groupby(['geography', 'category'])['value'].sum().reset_index()
 last_3_df = last_3_df.pivot(index='geography', columns='category', values='value')
 
@@ -47,7 +47,7 @@ display_df = display_df.merge(last_3_df, on='geography')
 old_cases = display_df['cases_x'] - display_df['cases_y']
 display_df['perc_change'] = 100 * (display_df['cases_x'] - old_cases) / old_cases
 # Style dataframe
-display_df.columns = ['Cases', 'Deaths', 'Cases last three days', '% change']
+display_df.columns = ['Cases', 'Deaths', 'Cases last 72h', '% change']
 display_df = display_df.sort_values(by='Cases', ascending=False)
 st.dataframe(display_df.style.highlight_max(axis=0), height=150)
 
