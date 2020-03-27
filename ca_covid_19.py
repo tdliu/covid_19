@@ -112,7 +112,7 @@ else:
     alt_lc = alt.Chart(plot_df).mark_line().encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
         y=alt.Y('deaths', axis=alt.Axis(title='Count')),
-        color=alt.Color('county', legend=alt.Legend(orient="top-left", fillColor='white'))
+        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white'))
     )
     st.altair_chart(alt_lc, use_container_width=True)
 
@@ -120,7 +120,7 @@ else:
     alt_lc = alt.Chart(plot_df).mark_line().encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
         y=alt.Y('deaths_cum_value', axis=alt.Axis(title='Count')),
-        color=alt.Color('county', legend=alt.Legend(orient="top-left", fillColor='white'))
+        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white'))
     )
     st.altair_chart(alt_lc, use_container_width=True)
 
