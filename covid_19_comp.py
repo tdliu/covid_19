@@ -76,10 +76,10 @@ category = st.sidebar.radio("Category", ('Cases', 'Deaths'))
 @st.cache
 def format_plot_data(counties_df, counties, states_df, states):
     df = counties_df[
-        (counties_df['county'].isin(counties))]
+        (counties_df['county'].isin(counties)) & (counties_df['date'] >= start_date)]
     df.rename(columns={"county": "geo"}, inplace=True)
     df.drop(columns=['state', 'fips'], inplace=True)
-    df2 = states_df[(states_df['state'].isin(states))]
+    df2 = states_df[(states_df['state'].isin(states)) & (states_df['date'] >= start_date)]
     df2.rename(columns={"state": "geo"}, inplace=True)
     df2.drop(columns=['fips'], inplace=True)
     df = df.append(df2, ignore_index=True)
@@ -102,7 +102,7 @@ if category == 'Cases':
     )
     st.altair_chart(alt_lc, use_container_width=True)
 
-    st.subheader("Cumulative cases")
+    st.subheader("Total cases")
     alt_lc = alt.Chart(plot_df).mark_line().encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
         y=alt.Y('total_cases', axis=alt.Axis(title='Count')),
