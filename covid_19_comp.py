@@ -61,7 +61,7 @@ st.dataframe(disp_df.style.highlight_max(axis=0), height=275)
 
 # Widgets
 st.subheader("Compare counties and states")
-st.markdown("Add or remove counties and states below. There are additional options in the sidebar.")
+st.markdown("Add or remove counties and states below.")
 options_counties = st.multiselect("Counties", counties,
                                   default=['San Francisco', 'Los Angeles'])
 options_states = st.multiselect('States', states, default='California')
