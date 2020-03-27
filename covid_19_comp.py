@@ -76,10 +76,10 @@ category = st.sidebar.radio("Category", ('Cases', 'Deaths'))
 @st.cache
 def format_plot_data(counties_df, counties, states_df, states):
     df = counties_df[
-        (counties_df['county'].isin(counties)) & (counties_df['date'] >= start_date)]
+        (counties_df['county'].isin(counties)) & (counties_df['date'] >= pd.to_datetime(start_date))]
     df.rename(columns={"county": "geo"}, inplace=True)
     df.drop(columns=['state', 'fips'], inplace=True)
-    df2 = states_df[(states_df['state'].isin(states)) & (states_df['date'] >= start_date)]
+    df2 = states_df[(states_df['state'].isin(states)) & (states_df['date'] >= pd.to_datetime(start_date))]
     df2.rename(columns={"state": "geo"}, inplace=True)
     df2.drop(columns=['fips'], inplace=True)
     df = df.append(df2, ignore_index=True)
