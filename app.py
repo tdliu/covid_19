@@ -6,8 +6,9 @@ import pandas as pd
 
 # Headings
 st.header("Compare spread of Covid-19 among California counties")
-st.markdown("Data from SF Chronicle's [Coronavirus Tracker] (https://projects.sfchronicle.com/2020/coronavirus-map/).  \n\n"
-            "This is not meant to be a comprehensive dashboard. SF Chronicle's tracker already has great data    for California. [NY Times] (https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html) and [John Hopkins] (https://coronavirus.jhu.edu/map.html) have comprehensive US and global visualisations. I made this because I wanted to compare how coronavirus has spread in San Francisco, where I live, with other regions.")
+st.markdown(
+    "Data from SF Chronicle's [Coronavirus Tracker] (https://projects.sfchronicle.com/2020/coronavirus-map/).  \n\n"
+    "This is not meant to be a comprehensive dashboard. SF Chronicle's tracker already has great data    for California. [NY Times] (https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html) and [John Hopkins] (https://coronavirus.jhu.edu/map.html) have comprehensive US and global visualisations. I made this because I wanted to compare how coronavirus has spread in San Francisco, where I live, with other regions.")
 
 # Get data
 response = requests.get('https://files.sfchronicle.com/project-feeds/covid19_us_cases_ca_by_county_.json')
@@ -31,7 +32,7 @@ counties.remove('BAY AREA')
 counties.remove('CALIFORNIA')
 
 options_counties = st.multiselect("CA Counties", counties, default=['San Francisco County', 'Los Angeles County'])
-geo_ms = st.multiselect('Other regions:', ('CALIFORNIA', 'BAY AREA'), default = 'BAY AREA')
+geo_ms = st.multiselect('Other regions:', ('CALIFORNIA', 'BAY AREA'), default='BAY AREA')
 options_counties.extend(geo_ms)
 category_radio = st.radio("Category", ('Cases', 'Deaths'))
 if category_radio == 'Cases':
@@ -63,7 +64,7 @@ else:
 alt_lc = alt.Chart(filtered_df).mark_line().encode(
     x=alt.X('date', axis=alt.Axis(title='Date')),
     y=alt.Y('value', axis=alt.Axis(title='Count')),
-    color='geography'
+    color=alt.Color('geography', legend=alt.Legend(orient="top-left", fillColor='white'))
 )
 st.altair_chart(alt_lc, use_container_width=True)
 
@@ -76,6 +77,6 @@ else:
 alt_lc = alt.Chart(filtered_df).mark_line().encode(
     x=alt.X('date', axis=alt.Axis(title='Date')),
     y=alt.Y('cum_value', axis=alt.Axis(title='Count')),
-    color='geography'
+    color=alt.Color('geography', legend=alt.Legend(orient="top-left", fillColor='white'))
 )
 st.altair_chart(alt_lc, use_container_width=True)
