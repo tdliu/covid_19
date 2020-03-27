@@ -8,8 +8,9 @@ import pandas as pd
 st.header("Compare spread of Covid-19 among California counties")
 st.markdown(
     "Data from SF Chronicle's [Coronavirus Tracker] (https://projects.sfchronicle.com/2020/coronavirus-map/).  \n\n"
-    "This is not meant to be a comprehensive dashboard. SF Chronicle's tracker already has great data    for California. [NY Times] (https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html) and [John Hopkins] (https://coronavirus.jhu.edu/map.html) have comprehensive US and global visualisations. I made this because I wanted to compare how coronavirus has spread in San Francisco, where I live, with other regions.")
-
+    "This is *not* meant to be a comprehensive dashboard. SF Chronicle's tracker already has great data    for California. [NY Times] (https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html) and [John Hopkins] (https://coronavirus.jhu.edu/map.html) have comprehensive US and global visualisations. I made this because I wanted to compare how coronavirus has spread in San Francisco, where I live, with other regions.")
+st.subheader("Compare counties")
+st.markdown("Add or remove counties below. There are additional options in the sidebar.")
 # Get data
 response = requests.get('https://files.sfchronicle.com/project-feeds/covid19_us_cases_ca_by_county_.json')
 raw_data = response.json()
@@ -31,10 +32,12 @@ counties = sorted(list(set(data_pd['geography'])))
 counties.remove('BAY AREA')
 counties.remove('CALIFORNIA')
 
-options_counties = st.multiselect("CA Counties (add or remove with selector below)", counties, default=['San Francisco County', 'Los Angeles County'])
-geo_ms = st.multiselect('Other regions:', ('CALIFORNIA', 'BAY AREA'), default='BAY AREA')
+options_counties = st.multiselect("CA Counties (add or remove with selector below)", counties,
+                                  default=['San Francisco County', 'Los Angeles County'])
+geo_ms = st.sidebar.multiselect('Other regions:', ('CALIFORNIA', 'BAY AREA'), default='BAY AREA')
 options_counties.extend(geo_ms)
-category_radio = st.radio("Category", ('Cases', 'Deaths'))
+start_date = st.sidebar.date_input('Start date', datetime.date(2020, 3, 1))
+category_radio = st.sidebar.radio("Category", ('Cases', 'Deaths'))
 if category_radio == 'Cases':
     category = 'cases'
 else:
@@ -48,7 +51,7 @@ def format_plot_data(raw_df, geos, category='cases'):
                 (raw_df['date'] <= max(
                     raw_df['date']))]  # Remove most recent date since some counties haven't updated yet
     df['cum_value'] = df.sort_values(['geography', 'date'], ascending=True).groupby('geography')['value'].cumsum()
-    df = df[df['date'] > '2020-02-20']  # Remove early dates without much data
+    df = df[df['date'] > start_date]  # '2020-02-20']  # Remove early dates without much data
     return df
 
 
