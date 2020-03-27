@@ -109,5 +109,5 @@ st.altair_chart(alt_lc, use_container_width=True)
 
 st.write("----------")
 st.write("""
-    By [Tony Liu] (https://twitter.com/tdliu) | source: [GitHub] (https://github.com/tdliu/covid_19) | data source [SF Chronicle] (https://projects.sfchronicle.com/2020/coronavirus-map/)
+    By [Tony Liu] (https://tonydl.com/) | source: [GitHub] (https://github.com/tdliu/covid_19) | data source [SF Chronicle] (https://projects.sfchronicle.com/2020/coronavirus-map/)
 """)
