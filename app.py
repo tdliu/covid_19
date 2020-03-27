@@ -37,7 +37,7 @@ display_df = display_df.pivot(index='geography', columns='category', values='val
 # Get cases in last 3 days
 last_3_df = data_pd
 last_3_df = last_3_df[
-    (last_3_df['date'] > date.today() - datetime.timedelta(days=3)) & (last_3_df['category'] == 'cases')]
+    (last_3_df['date'] > datetime.datetime.today() - datetime.timedelta(days=3)) & (last_3_df['category'] == 'cases')]
 last_3_df = last_3_df.groupby(['geography', 'category'])['value'].sum().reset_index()
 last_3_df = last_3_df.pivot(index='geography', columns='category', values='value')
 
