@@ -49,7 +49,7 @@ display_df['perc_change'] = 100 * (display_df['cases_x'] - old_cases) / old_case
 # Style dataframe
 display_df.columns = ['Cases', 'Deaths', 'Cases last three days', '% change']
 display_df = display_df.sort_values(by='Cases', ascending=False)
-st.dataframe(display_df, height=150)
+st.dataframe(display_df.style.highlight_max(axis=0), height=150)
 
 # Widgets
 st.subheader("Compare counties")
@@ -64,6 +64,7 @@ if category_radio == 'Cases':
     category = 'cases'
 else:
     category = 'deaths'
+
 
 # Create dataframe
 def format_plot_data(raw_df, geos, category='cases'):
