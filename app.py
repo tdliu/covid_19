@@ -30,7 +30,7 @@ counties.remove('BAY AREA')
 counties.remove('CALIFORNIA')
 
 options_counties = st.sidebar.multiselect("Counties", counties, default=['San Francisco County', 'Los Angeles County'])
-geo_ms = st.sidebar.multiselect('Also include:', ('CALIFORNIA', 'BAY AREA'))
+geo_ms = st.sidebar.multiselect('Also include:', ('CALIFORNIA', 'BAY AREA'), default = 'BAY AREA')
 options_counties.extend(geo_ms)
 category_radio = st.sidebar.radio("Category", ('Cases', 'Deaths'))
 if category_radio == 'Cases':
