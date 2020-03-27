@@ -4,12 +4,6 @@ import datetime
 import altair as alt
 import pandas as pd
 
-# Headings
-st.header("Compare spread of Covid-19 among California counties")
-st.markdown(
-    "Data from SF Chronicle's [Coronavirus Tracker] (https://projects.sfchronicle.com/2020/coronavirus-map/).  \n\n"
-    "This is *not* meant to be a comprehensive dashboard. SF Chronicle's tracker already has great data    for California. [NY Times] (https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html) and [John Hopkins] (https://coronavirus.jhu.edu/map.html) have comprehensive US and global visualisations. I made this because I wanted to compare how coronavirus has spread in San Francisco, where I live, with other regions.")
-
 # Get data
 response = requests.get('https://files.sfchronicle.com/project-feeds/covid19_us_cases_ca_by_county_.json')
 raw_data = response.json()
@@ -27,6 +21,13 @@ data_pd = pd.DataFrame(clean_data, columns=['geography', 'category', 'date', 'va
 counties = sorted(list(set(data_pd['geography'])))
 counties.remove('BAY AREA')
 counties.remove('CALIFORNIA')
+
+# Headings
+st.header("Compare spread of Covid-19 among California counties")
+updated_at = raw_data[0]['c2p_pubdate']
+st.write("Data from SF Chronicle's Coronavirus Tracker. Updated at", updated_at)
+st.markdown(
+    "This is *not* meant to be a comprehensive dashboard. [SF Chronicle's Coronavirus Tracker] (https://projects.sfchronicle.com/2020/coronavirus-map/) already has great data    for California. [NY Times] (https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html) and [John Hopkins] (https://coronavirus.jhu.edu/map.html) have comprehensive US and global visualisations. I made this because I wanted to compare how coronavirus has spread in San Francisco, where I live, with other regions.")
 
 # Dataframe of counties with most cases
 display_df = data_pd[data_pd['geography'].isin(counties)]
