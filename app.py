@@ -9,8 +9,7 @@ st.header("Compare spread of Covid-19 among California counties")
 st.markdown(
     "Data from SF Chronicle's [Coronavirus Tracker] (https://projects.sfchronicle.com/2020/coronavirus-map/).  \n\n"
     "This is *not* meant to be a comprehensive dashboard. SF Chronicle's tracker already has great data    for California. [NY Times] (https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html) and [John Hopkins] (https://coronavirus.jhu.edu/map.html) have comprehensive US and global visualisations. I made this because I wanted to compare how coronavirus has spread in San Francisco, where I live, with other regions.")
-st.subheader("Compare counties")
-st.markdown("Add or remove counties below. There are additional options in the sidebar.")
+
 # Get data
 response = requests.get('https://files.sfchronicle.com/project-feeds/covid19_us_cases_ca_by_county_.json')
 raw_data = response.json()
@@ -25,13 +24,36 @@ for x in raw_data:
         except ValueError:
             pass
 data_pd = pd.DataFrame(clean_data, columns=['geography', 'category', 'date', 'value'])
-
-# Widgets
-
 counties = sorted(list(set(data_pd['geography'])))
 counties.remove('BAY AREA')
 counties.remove('CALIFORNIA')
 
+# Dataframe of counties with most cases
+display_df = data_pd[data_pd['geography'].isin(counties)]
+st.subheader("Counties with most cases")
+display_df = display_df.groupby(['geography', 'category'])['value'].sum().reset_index()
+display_df = display_df.pivot(index='geography', columns='category', values='value')
+
+# Get cases in last 3 days
+last_3_df = data_pd
+last_3_df = last_3_df[
+    (last_3_df['date'] > date.today() - datetime.timedelta(days=3)) & (last_3_df['category'] == 'cases')]
+last_3_df = last_3_df.groupby(['geography', 'category'])['value'].sum().reset_index()
+last_3_df = last_3_df.pivot(index='geography', columns='category', values='value')
+
+# Merge dataframes
+display_df = display_df.merge(last_3_df, on='geography')
+# Compute % change in cases
+old_cases = display_df['cases_x'] - display_df['cases_y']
+display_df['perc_change'] = 100 * (display_df['cases_x'] - old_cases) / old_cases
+# Style dataframe
+display_df.columns = ['Cases', 'Deaths', 'Cases last three days', '% change']
+display_df = display_df.sort_values(by='Cases', ascending=False)
+st.dataframe(display_df, height=150)
+
+# Widgets
+st.subheader("Compare counties")
+st.markdown("Add or remove counties below. There are additional options in the sidebar.")
 options_counties = st.multiselect("CA Counties (add or remove with selector below)", counties,
                                   default=['San Francisco County', 'Los Angeles County'])
 geo_ms = st.sidebar.multiselect('Other regions:', ('CALIFORNIA', 'BAY AREA'), default='BAY AREA')
@@ -42,7 +64,6 @@ if category_radio == 'Cases':
     category = 'cases'
 else:
     category = 'deaths'
-
 
 # Create dataframe
 def format_plot_data(raw_df, geos, category='cases'):
