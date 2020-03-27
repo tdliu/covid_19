@@ -21,7 +21,6 @@ states_df['date'] = pd.to_datetime(states_df['date'])
 
 # Headings
 st.header("Compare spread of Covid-19 among US counties")
-st.write('Data as of', max(counties_df['date']).strftime("%B %d, %Y"))
 st.markdown("""
     This is not meant to be a comprehensive dashboard. I made this because I wanted an easy way to compare
     how coronavirus has spread at a more granular level. Thankfully, New York Times is publishing 
@@ -29,6 +28,7 @@ st.markdown("""
     \n\nFor comprehensive and high-level visualisations, check out [NY Times] (https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html) 
     and [John Hopkins] (https://coronavirus.jhu.edu/map.html).
 """)
+st.write('Data as of', max(counties_df['date']).strftime("%B %d, %Y"))
 
 # Dataframe of counties with most cases
 
