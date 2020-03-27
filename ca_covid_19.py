@@ -32,34 +32,6 @@ st.write('Data as of', max(counties_df['date']).strftime("%B %d, %Y"))
 
 # Dataframe of counties with most cases
 
-# Display data frame
-st.subheader("Counties with most cases")
-st.markdown("Filter states by selecting below. Clear options to see all states.")
-options_states = st.multiselect("States", states, default=['California', 'New York', 'Washington'])
-
-
-@st.cache
-def format_display_data(counties_df, states):
-    if len(options_states) == 0:
-        disp_df = counties_df.groupby(['county', 'state'])['cases'].sum().reset_index()
-    else:
-        disp_df = counties_df[counties_df['state'].isin(states)].groupby(['county', 'state'])[
-            'cases'].sum().reset_index()
-
-    disp_df_2 = \
-        counties_df[(counties_df['date'] > max(counties_df['date']) - datetime.timedelta(days=3))].groupby('county')[
-            'cases'].sum().reset_index()
-    disp_df = disp_df.merge(disp_df_2, on='county')
-    old_cases = disp_df['cases_x'] - disp_df['cases_y']
-    disp_df['perc_change'] = 100 * (disp_df['cases_x'] - old_cases) / old_cases
-    disp_df.columns = ['County', 'State', 'Cases', 'Cases last 72h', '% change']
-    disp_df = disp_df.sort_values(by='Cases', ascending=False)
-    return disp_df
-
-
-disp_df = format_display_data(counties_df, options_states)
-
-st.dataframe(disp_df.style.highlight_max(axis=0), height=150)
 
 # Widgets
 st.subheader("Compare counties and states")
