@@ -25,7 +25,7 @@ counties.remove('CALIFORNIA')
 # Headings
 st.header("Compare spread of Covid-19 among California counties")
 updated_at = raw_data[0]['c2p_pubdate']
-st.write("Data from SF Chronicle's Coronavirus Tracker. Updated at", updated_at)
+st.write("Data from SF Chronicle's Coronavirus Tracker. Updated at", updated_at, 'PST.')
 st.markdown(
     "This is *not* meant to be a comprehensive dashboard. [SF Chronicle's Coronavirus Tracker] (https://projects.sfchronicle.com/2020/coronavirus-map/) already has great data    for California. [NY Times] (https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html) and [John Hopkins] (https://coronavirus.jhu.edu/map.html) have comprehensive US and global visualisations. I made this because I wanted to compare how coronavirus has spread in San Francisco, where I live, with other regions.")
 
