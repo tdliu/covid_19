@@ -50,8 +50,8 @@ def format_display_data(counties_df, states):
     disp_df = disp_df.merge(disp_df2[['county_state', 'cases', 'deaths']], on='county_state')
     disp_df['cases_last_day'] = disp_df['cases_x'] - disp_df['cases_y']
     disp_df['delta'] = 100 * (disp_df['cases_x'] - disp_df['cases_y']) / disp_df['cases_y']
-    disp_df = disp_df[['county', 'state', 'cases_x', 'cases_last_day', 'delta']]
-    disp_df.columns = ['County', 'State', 'Total cases', 'New cases', '% change']
+    disp_df = disp_df[['county_state', 'cases_x', 'cases_last_day', 'delta']]
+    disp_df.columns = ['County', 'Total cases', 'New cases', '% change']
     disp_df = disp_df.sort_values(by='New cases', ascending=False).reset_index(drop=True)
     return disp_df
 
