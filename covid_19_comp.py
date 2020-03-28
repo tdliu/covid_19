@@ -70,6 +70,8 @@ plot_states = st.multiselect('States', states, default=['California', 'Washingto
 start_date = st.date_input('Start date', datetime.date(2020, 3, 10))
 category = st.radio("Category", ('Cases', 'Deaths'))
 
+def compute_growth_rate(delta, curr_total):
+    return 100 * (curr_total - (curr_total - delta)) / (curr_total - delta)
 
 @st.cache
 def format_plot_data(counties_df, counties, states_df, states):
@@ -87,6 +89,8 @@ def format_plot_data(counties_df, counties, states_df, states):
     df['new_deaths'] = df['deaths_x'] - df['deaths_y']
     df = df[['date_x', 'geo', 'cases_x', 'deaths_x', 'new_cases', 'new_deaths']]
     df.columns = ['date', 'geo', 'total_cases', 'total_deaths', 'new_cases', 'new_deaths']
+    df['daily_growth_rate_cases'] = 100 * df['new_cases'] / df['total_cases']
+    df['daily_growth_rate_deaths'] = 100 * df['new_deaths'] / df['total_deaths']
     return df
 
 
@@ -109,6 +113,15 @@ if category == 'Cases':
         tooltip=['geo', 'date', 'total_cases']
     )
     st.altair_chart(alt_lc, use_container_width=True)
+
+    st.subheader("Average daily change in total cases")
+    alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
+        x=alt.X('date', axis=alt.Axis(title='Date')),
+        y=alt.Y('daily_growth_rate_cases', axis=alt.Axis(title='% daily change in total cases')),
+        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
+        tooltip=['geo', 'date', 'daily_growth_rate_cases']
+    )
+    st.altair_chart(alt_lc, use_container_width=True)
 else:
     st.subheader("New deaths")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
@@ -125,6 +138,15 @@ else:
         y=alt.Y('total_deaths', axis=alt.Axis(title='Count')),
         color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
         tooltip=['geo', 'date', 'total_deaths']
+    )
+    st.altair_chart(alt_lc, use_container_width=True)
+
+    st.subheader("Average daily change in total deaths")
+    alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
+        x=alt.X('date', axis=alt.Axis(title='Date')),
+        y=alt.Y('daily_growth_rate_deaths', axis=alt.Axis(title='% daily change in total deaths')),
+        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
+        tooltip=['geo', 'date', 'daily_growth_rate_deaths']
     )
     st.altair_chart(alt_lc, use_container_width=True)
 
