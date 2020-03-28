@@ -23,7 +23,7 @@ states_df['date'] = pd.to_datetime(states_df['date'])
 st.header("Compare spread of Covid-19 among US counties")
 st.markdown("""
     This is not meant to be a comprehensive dashboard. I made this because I wanted an easy way to compare
-    how coronavirus has spread at a more granular level. Thankfully, New York Times is publishing 
+    how coronavirus has spread at a more granular level. Thankfully, The New York Times is publishing 
     [county-level data] (https://github.com/nytimes/covid-19-data), which I use to build the visualisations below.
     \n\nFor comprehensive and high-level visualisations, check out [NY Times] (https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html) 
     and [John Hopkins] (https://coronavirus.jhu.edu/map.html).
