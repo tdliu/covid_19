@@ -93,34 +93,38 @@ def format_plot_data(counties_df, counties, states_df, states):
 plot_df = format_plot_data(counties_df, plot_counties, states_df, plot_states)
 if category == 'Cases':
     st.subheader("New cases")
-    alt_lc = alt.Chart(plot_df).mark_line().encode(
+    alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
         y=alt.Y('new_cases', axis=alt.Axis(title='Count')),
-        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white'))
+        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
+        tooltip=['geo', 'date', 'new_cases']
     )
     st.altair_chart(alt_lc, use_container_width=True)
 
     st.subheader("Total cases")
-    alt_lc = alt.Chart(plot_df).mark_line().encode(
+    alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
         y=alt.Y('total_cases', axis=alt.Axis(title='Count')),
-        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white'))
+        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
+        tooltip=['geo', 'date', 'total_cases']
     )
     st.altair_chart(alt_lc, use_container_width=True)
 else:
     st.subheader("New deaths")
-    alt_lc = alt.Chart(plot_df).mark_line().encode(
+    alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
         y=alt.Y('new_deaths', axis=alt.Axis(title='Count')),
-        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white'))
+        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
+        tooltip=['geo', 'date', 'new_deaths']
     )
     st.altair_chart(alt_lc, use_container_width=True)
 
     st.subheader("Total deaths")
-    alt_lc = alt.Chart(plot_df).mark_line().encode(
+    alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
         y=alt.Y('total_deaths', axis=alt.Axis(title='Count')),
-        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white'))
+        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
+        tooltip=['geo', 'date', 'total_deaths']
     )
     st.altair_chart(alt_lc, use_container_width=True)
 
