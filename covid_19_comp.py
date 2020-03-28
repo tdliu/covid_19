@@ -114,7 +114,7 @@ if category == 'Cases':
     )
     st.altair_chart(alt_lc, use_container_width=True)
 
-    st.subheader("Average daily change in total cases")
+    st.subheader("% daily change in total cases")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
         y=alt.Y('daily_growth_rate_cases', axis=alt.Axis(title='% daily change in total cases')),
@@ -141,7 +141,7 @@ else:
     )
     st.altair_chart(alt_lc, use_container_width=True)
 
-    st.subheader("Average daily change in total deaths")
+    st.subheader("% daily change in total deaths")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
         y=alt.Y('daily_growth_rate_deaths', axis=alt.Axis(title='% daily change in total deaths')),
