@@ -10,7 +10,8 @@ counties_data_url = "https://raw.githubusercontent.com/nytimes/covid-19-data/mas
 counties_df = pd.read_csv(counties_data_url)
 counties_df['date'] = pd.to_datetime(counties_df['date'])
 counties_df = counties_df[counties_df.county != 'Unknown']  # removing cases that have unknown counties
-counties = sorted(list(set(counties_df['county'])))
+counties_df['county_state'] = counties_df['county'] + ', ' + counties_df['state']
+counties = sorted(list(set(counties_df['county_state'])))
 states = sorted(list(set(counties_df['state'])))
 curr_date = max(counties_df['date'])
 
@@ -46,7 +47,7 @@ def format_display_data(counties_df, states):
         disp_df = counties_df[counties_df['state'].isin(states)]
     disp_df = disp_df[disp_df['date'] == curr_date]
     disp_df2 = counties_df[(counties_df['date'] == max(counties_df['date']) - datetime.timedelta(days=1))]
-    disp_df = disp_df.merge(disp_df2[['county', 'state', 'cases', 'deaths']], on=['county', 'state'])
+    disp_df = disp_df.merge(disp_df2[['county_state', 'cases', 'deaths']], on='county_state')
     disp_df['cases_last_day'] = disp_df['cases_x'] - disp_df['cases_y']
     disp_df['delta'] = 100 * (disp_df['cases_x'] - disp_df['cases_y']) / disp_df['cases_y']
     disp_df = disp_df[['county', 'state', 'cases_x', 'cases_last_day', 'delta']]
@@ -62,9 +63,10 @@ st.dataframe(disp_df.style.highlight_max(axis=0), height=275)
 # Widgets
 st.subheader("Compare counties and states")
 st.markdown("Add or remove counties and states below.")
-options_counties = st.multiselect("Counties", counties,
-                                  default=['San Francisco', 'Los Angeles'])
-options_states = st.multiselect('States', states, default='California')
+
+plot_counties = st.multiselect("Counties", counties,
+                               default=['San Francisco, California', 'Los Angeles, California'])
+plot_states = st.multiselect('States', states, default='California')
 start_date = st.date_input('Start date', datetime.date(2020, 3, 1))
 category = st.radio("Category", ('Cases', 'Deaths'))
 
@@ -72,8 +74,8 @@ category = st.radio("Category", ('Cases', 'Deaths'))
 @st.cache
 def format_plot_data(counties_df, counties, states_df, states):
     df = counties_df[
-        (counties_df['county'].isin(counties)) & (counties_df['date'] >= pd.to_datetime(start_date))]
-    df.rename(columns={"county": "geo"}, inplace=True)
+        (counties_df['county_state'].isin(counties)) & (counties_df['date'] >= pd.to_datetime(start_date))]
+    df.rename(columns={"county_state": "geo"}, inplace=True)
     df.drop(columns=['state', 'fips'], inplace=True)
     df2 = states_df[(states_df['state'].isin(states)) & (states_df['date'] >= pd.to_datetime(start_date))]
     df2.rename(columns={"state": "geo"}, inplace=True)
@@ -88,7 +90,7 @@ def format_plot_data(counties_df, counties, states_df, states):
     return df
 
 
-plot_df = format_plot_data(counties_df, options_counties, states_df, options_states)
+plot_df = format_plot_data(counties_df, plot_counties, states_df, plot_states)
 if category == 'Cases':
     st.subheader("New cases")
     alt_lc = alt.Chart(plot_df).mark_line().encode(
