@@ -94,7 +94,7 @@ disp_df = format_display_data(counties_df, options_states).set_index('County', d
 st.dataframe(disp_df.style.highlight_max(axis=0), height=275)
 
 # Widgets
-st.subheader("Compare counties and states")
+st.subheader("Compare counties with states and other countries")
 st.markdown("Add or remove counties and states below.")
 
 plot_counties = st.multiselect("Counties", counties,
