@@ -110,8 +110,6 @@ if st.checkbox('Check for more options, e.g. countries, date, cases/deaths, log 
     plot_countries = st.multiselect('Countries', countries)
     start_date = st.date_input('Start date', datetime.date(2020, 3, 10))
     category = st.radio("Category", ('Cases', 'Deaths'))
-    is_log = st.checkbox('Log scale')
-
 
 @st.cache
 def format_plot_data(counties_df, counties, states_df, states, global_df, countries):
@@ -144,25 +142,33 @@ def format_plot_data(counties_df, counties, states_df, states, global_df, countr
 
 
 ny_times_quote = """
-    [The New York Times] (https://www.nytimes.com/interactive/2020/03/27/upshot/coronavirus-new-york-comparison.html): 
-    >To assess the possible future of the outbreak, it’s helpful to look not just at 
-    >the number of cases but also at how quickly they are increasing. The accompanying chart 
-    >shows the growth rate of cumulative cases over time, averaged over the previous week."
+    [The New York Times] (https://www.nytimes.com/interactive/2020/03/21/upshot/coronavirus-deaths-by-country.html): 
+    >Another way of looking at the same information is to plot the growth rates directly. With 
+    >epidemics, these rates are often more important than the current totals. **A reading of 40 
+    >percent on the chart below means that, on average, the number of deaths has been increasing 
+    >by 40 percent each day.** A reading of 100 percent would mean that cases were doubling daily.    
+    
+    The accompanying chart shows the growth rate of cumulative cases over time, averaged over the 
+    previous week.
     """
+
+days_since_text = """
+    [The New York Times] (https://www.nytimes.com/interactive/2020/03/21/upshot/coronavirus-deaths-by-country.html):
+    >The accompanying chart... allows you to follow the disease’s 
+    >progression by country. **It uses what’s called a logarithmic scale — exponential growth at 
+    >different rates will appear as straight lines of different steepness.** The steeper the line, 
+    >the higher the growth rate and the faster the total number of coronavirus deaths is doubling.
+"""
 
 plot_df = format_plot_data(counties_df, plot_counties, states_df, plot_states, global_df, plot_countries)
 norm_date_df = plot_df[plot_df['total_cases'] > 50]
 norm_date_df['days_since_50_cases'] = norm_date_df.groupby("geo")['date'].rank("min") - 1
 
-if is_log:
-    scale = 'symlog'
-else:
-    scale = 'linear'
 if category == 'Cases':
     st.subheader("New cases")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
-        y=alt.Y('new_cases', axis=alt.Axis(title='Count'), scale=alt.Scale(type=scale)),
+        y=alt.Y('new_cases', axis=alt.Axis(title='Count')),
         color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
         tooltip=['geo', 'date', 'new_cases']
     )
@@ -171,12 +177,16 @@ if category == 'Cases':
     st.subheader("Total cases")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
-        y=alt.Y('total_cases', axis=alt.Axis(title='Count'), scale=alt.Scale(type=scale)),
+        y=alt.Y('total_cases', axis=alt.Axis(title='Count')),
         color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
         tooltip=['geo', 'date', 'total_cases']
     )
     st.altair_chart(alt_lc, use_container_width=True)
-
+    st.markdown(days_since_text)
+    if st.checkbox('Log scale', value=True):
+        scale = 'symlog'
+    else:
+        scale = 'linear'
     st.subheader("Total cases for regions with more than 50 cases")
     alt_lc = alt.Chart(norm_date_df).mark_line(point=True).encode(
         x=alt.X('days_since_50_cases', axis=alt.Axis(title='Days since 50 cases')),
@@ -199,7 +209,7 @@ else:
     st.subheader("New deaths")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
-        y=alt.Y('new_deaths', axis=alt.Axis(title='Count'), scale=alt.Scale(type=scale)),
+        y=alt.Y('new_deaths', axis=alt.Axis(title='Count')),
         color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
         tooltip=['geo', 'date', 'new_deaths']
     )
@@ -208,11 +218,16 @@ else:
     st.subheader("Total deaths")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
-        y=alt.Y('total_deaths', axis=alt.Axis(title='Count'), scale=alt.Scale(type=scale)),
+        y=alt.Y('total_deaths', axis=alt.Axis(title='Count')),
         color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
         tooltip=['geo', 'date', 'total_deaths']
     )
     st.altair_chart(alt_lc, use_container_width=True)
+    st.markdown(days_since_text)
+    if st.checkbox('Log scale', value=True):
+        scale = 'symlog'
+    else:
+        scale = 'linear'
     st.subheader("Total deaths for regions with more than 50 cases")
     alt_lc = alt.Chart(norm_date_df).mark_line(point=True).encode(
         x=alt.X('days_since_50_cases', axis=alt.Axis(title='Days since 50 cases')),
