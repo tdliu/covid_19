@@ -67,8 +67,13 @@ st.markdown("Add or remove counties and states below.")
 plot_counties = st.multiselect("Counties", counties,
                                default=['San Francisco, California', 'Los Angeles, California'])
 plot_states = st.multiselect('States', states, default=['California', 'Washington'])
-start_date = st.date_input('Start date', datetime.date(2020, 3, 10))
-category = st.radio("Category", ('Cases', 'Deaths'))
+# set defaults
+start_date = datetime.date(2020, 3, 10)
+category = 'Cases'
+if st.checkbox('Check for more options, e.g. date, cases/deaths'):
+    start_date = st.date_input('Start date', datetime.date(2020, 3, 10))
+    category = st.radio("Category", ('Cases', 'Deaths'))
+
 
 def compute_growth_rate(delta, curr_total):
     return 100 * (curr_total - (curr_total - delta)) / (curr_total - delta)
