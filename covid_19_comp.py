@@ -74,11 +74,6 @@ if st.checkbox('Check for more options, e.g. date, cases/deaths'):
     start_date = st.date_input('Start date', datetime.date(2020, 3, 10))
     category = st.radio("Category", ('Cases', 'Deaths'))
 
-
-def compute_growth_rate(delta, curr_total):
-    return 100 * (curr_total - (curr_total - delta)) / (curr_total - delta)
-
-
 @st.cache
 def format_plot_data(counties_df, counties, states_df, states):
     df = counties_df[counties_df['county_state'].isin(counties)]
