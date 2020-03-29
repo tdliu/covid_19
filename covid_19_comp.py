@@ -84,7 +84,7 @@ def format_display_data(counties_df, states):
     disp_df['cases_last_day'] = disp_df['cases_x'] - disp_df['cases_y']
     disp_df['delta'] = 100 * (disp_df['cases_x'] - disp_df['cases_y']) / disp_df['cases_y']
     disp_df = disp_df[['county_state', 'cases_x', 'cases_last_day', 'delta']]
-    disp_df.columns = ['County', 'Total cases', 'New cases', '% change']
+    disp_df.columns = ['County', 'Total cases', 'New cases', '% change last day']
     disp_df = disp_df.sort_values(by='New cases', ascending=False).reset_index(drop=True)
     return disp_df
 
@@ -105,10 +105,13 @@ plot_states = st.multiselect('States', states, default=['California', 'Washingto
 start_date = datetime.date(2020, 3, 10)
 category = 'Cases'
 plot_countries = []
-if st.checkbox('Check for more options, e.g. countries, date, cases/deaths.'):
+is_log = False
+if st.checkbox('Check for more options, e.g. countries, date, cases/deaths, log scale.'):
     plot_countries = st.multiselect('Countries', countries)
     start_date = st.date_input('Start date', datetime.date(2020, 3, 10))
     category = st.radio("Category", ('Cases', 'Deaths'))
+    is_log = st.checkbox('Log scale')
+
 
 @st.cache
 def format_plot_data(counties_df, counties, states_df, states, global_df, countries):
@@ -148,11 +151,18 @@ ny_times_quote = """
     """
 
 plot_df = format_plot_data(counties_df, plot_counties, states_df, plot_states, global_df, plot_countries)
+norm_date_df = plot_df[plot_df['total_cases'] > 50]
+norm_date_df['days_since_50_cases'] = norm_date_df.groupby("geo")['date'].rank("min") - 1
+
+if is_log:
+    scale = 'symlog'
+else:
+    scale = 'linear'
 if category == 'Cases':
     st.subheader("New cases")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
-        y=alt.Y('new_cases', axis=alt.Axis(title='Count')),
+        y=alt.Y('new_cases', axis=alt.Axis(title='Count'), scale=alt.Scale(type=scale)),
         color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
         tooltip=['geo', 'date', 'new_cases']
     )
@@ -161,11 +171,21 @@ if category == 'Cases':
     st.subheader("Total cases")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
-        y=alt.Y('total_cases', axis=alt.Axis(title='Count')),
+        y=alt.Y('total_cases', axis=alt.Axis(title='Count'), scale=alt.Scale(type=scale)),
         color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
         tooltip=['geo', 'date', 'total_cases']
     )
     st.altair_chart(alt_lc, use_container_width=True)
+
+    st.subheader("Total cases for regions with more than 50 cases")
+    alt_lc = alt.Chart(norm_date_df).mark_line(point=True).encode(
+        x=alt.X('days_since_50_cases', axis=alt.Axis(title='Days since 50 cases')),
+        y=alt.Y('total_cases', axis=alt.Axis(title='Count'), scale=alt.Scale(type=scale)),
+        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
+        tooltip=['geo', 'date', 'days_since_50_cases', 'total_cases']
+    )
+    st.altair_chart(alt_lc, use_container_width=True)
+
     st.markdown(ny_times_quote)
     st.subheader("Average daily change in total cases, over previous 7 days")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
@@ -179,7 +199,7 @@ else:
     st.subheader("New deaths")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
-        y=alt.Y('new_deaths', axis=alt.Axis(title='Count')),
+        y=alt.Y('new_deaths', axis=alt.Axis(title='Count'), scale=alt.Scale(type=scale)),
         color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
         tooltip=['geo', 'date', 'new_deaths']
     )
@@ -188,11 +208,20 @@ else:
     st.subheader("Total deaths")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
         x=alt.X('date', axis=alt.Axis(title='Date')),
-        y=alt.Y('total_deaths', axis=alt.Axis(title='Count')),
+        y=alt.Y('total_deaths', axis=alt.Axis(title='Count'), scale=alt.Scale(type=scale)),
         color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
         tooltip=['geo', 'date', 'total_deaths']
     )
     st.altair_chart(alt_lc, use_container_width=True)
+    st.subheader("Total deaths for regions with more than 50 cases")
+    alt_lc = alt.Chart(norm_date_df).mark_line(point=True).encode(
+        x=alt.X('days_since_50_cases', axis=alt.Axis(title='Days since 50 cases')),
+        y=alt.Y('total_deaths', axis=alt.Axis(title='Count'), scale=alt.Scale(type=scale)),
+        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
+        tooltip=['geo', 'date', 'days_since_50_cases', 'total_deaths']
+    )
+    st.altair_chart(alt_lc, use_container_width=True)
+
     st.markdown(ny_times_quote)
     st.subheader("Average daily change in total deaths, over previous 7 days")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
