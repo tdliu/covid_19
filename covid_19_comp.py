@@ -74,7 +74,7 @@ def compute_growth_rate(delta, curr_total):
     return 100 * (curr_total - (curr_total - delta)) / (curr_total - delta)
 
 
-# @st.cache
+@st.cache
 def format_plot_data(counties_df, counties, states_df, states):
     df = counties_df[counties_df['county_state'].isin(counties)]
     df.rename(columns={"county_state": "geo"}, inplace=True)
