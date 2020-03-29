@@ -11,6 +11,7 @@ counties_df = pd.read_csv(counties_data_url)
 counties_df['date'] = pd.to_datetime(counties_df['date'])
 counties_df = counties_df[counties_df.county != 'Unknown']  # removing cases that have unknown counties
 counties_df['county_state'] = counties_df['county'] + ', ' + counties_df['state']
+counties_df.drop(columns=['fips'], inplace=True)
 counties = sorted(list(set(counties_df['county_state'])))
 states = sorted(list(set(counties_df['state'])))
 curr_date = max(counties_df['date'])
@@ -19,9 +20,38 @@ curr_date = max(counties_df['date'])
 states_data_url = "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-states.csv"
 states_df = pd.read_csv(states_data_url)
 states_df['date'] = pd.to_datetime(states_df['date'])
+states_df.drop(columns=['fips'], inplace=True)
+
+# Get data from CSSEGISandData
+# Cases
+global_data_url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
+global_df = pd.read_csv(global_data_url)
+global_df.drop(['Province/State', 'Lat', 'Long'], inplace=True, axis=1)
+# Sum by country
+global_df = global_df.groupby('Country/Region').sum().reset_index()
+global_df = pd.melt(global_df, id_vars=['Country/Region'], value_vars=global_df.columns[1:])
+global_df.columns = ['country', 'date', 'cases']
+# Fix Taiwan bug
+global_df['country'].replace("Taiwan*", 'Taiwan', inplace=True)
+
+# Deaths
+global_data_url2 = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
+global_df2 = pd.read_csv(global_data_url2)
+global_df2.drop(['Province/State', 'Lat', 'Long'], inplace=True, axis=1)
+# Sum by country
+global_df2 = global_df2.groupby('Country/Region').sum().reset_index()
+global_df2 = pd.melt(global_df2, id_vars=['Country/Region'], value_vars=global_df2.columns[1:])
+global_df2.columns = ['country', 'date', 'deaths']
+# Fix Taiwan bug
+global_df2['country'].replace("Taiwan*", 'Taiwan', inplace=True)
+
+global_df = global_df.merge(global_df2, on=['country', 'date'])
+global_df['date'] = pd.to_datetime(global_df['date'])
+countries = sorted(list(set(global_df['country'])))
 
 # Headings
-st.header("Compare spread of Covid-19 among US counties")
+st.header("Compare spread of Covid-19")
+st.subheader("Among US counties, US states, and countries")
 st.markdown("""
     This is not meant to be a comprehensive dashboard. I made this because I wanted an easy way to compare
     how coronavirus has spread at a more granular level. Thankfully, The New York Times is publishing 
@@ -29,7 +59,10 @@ st.markdown("""
     \n\nFor comprehensive and high-level visualisations, check out [NY Times] (https://www.nytimes.com/interactive/2020/us/coronavirus-us-cases.html) 
     and [John Hopkins] (https://coronavirus.jhu.edu/map.html).
 """)
-st.write('Data as of', max(counties_df['date']).strftime("%B %d, %Y"))
+st.write('County and state-level data from The New York Times updated up to',
+         max(counties_df['date']).strftime("%B %d, %Y"),
+         '.  \nCountry-level data from [John Hopkins CSSE] (https://github.com/CSSEGISandData/COVID-19) updated up to',
+         max(global_df['date']).strftime("%B %d, %Y"), '.')
 
 # Dataframe of counties with most cases
 
@@ -56,7 +89,7 @@ def format_display_data(counties_df, states):
     return disp_df
 
 
-disp_df = format_display_data(counties_df, options_states)
+disp_df = format_display_data(counties_df, options_states).set_index('County', drop=True)
 
 st.dataframe(disp_df.style.highlight_max(axis=0), height=275)
 
@@ -67,22 +100,31 @@ st.markdown("Add or remove counties and states below.")
 plot_counties = st.multiselect("Counties", counties,
                                default=['San Francisco, California', 'Los Angeles, California'])
 plot_states = st.multiselect('States', states, default=['California', 'Washington'])
+
 # set defaults
 start_date = datetime.date(2020, 3, 10)
 category = 'Cases'
-if st.checkbox('Check for more options, e.g. date, cases/deaths'):
+plot_countries = []
+if st.checkbox('Check for more options, e.g. countries, date, cases/deaths.'):
+    plot_countries = st.multiselect('Countries', countries)
     start_date = st.date_input('Start date', datetime.date(2020, 3, 10))
     category = st.radio("Category", ('Cases', 'Deaths'))
 
+
 @st.cache
-def format_plot_data(counties_df, counties, states_df, states):
+def format_plot_data(counties_df, counties, states_df, states, global_df, countries):
     df = counties_df[counties_df['county_state'].isin(counties)]
     df.rename(columns={"county_state": "geo"}, inplace=True)
-    df.drop(columns=['state', 'fips'], inplace=True)
+    df.drop(columns=['state'], inplace=True)
+
     df2 = states_df[(states_df['state'].isin(states))]
     df2.rename(columns={"state": "geo"}, inplace=True)
-    df2.drop(columns=['fips'], inplace=True)
     df = df.append(df2, ignore_index=True)
+
+    df3 = global_df[(global_df['country'].isin(countries))]
+    df3.rename(columns={"country": "geo"}, inplace=True)
+    df = df.append(df3, ignore_index=True)
+
     df['previous_date'] = df['date'] - datetime.timedelta(days=1)
     df = pd.merge(df, df, left_on=['previous_date', 'geo'], right_on=['date', 'geo'])
     df['new_cases'] = df['cases_x'] - df['cases_y']
@@ -106,7 +148,7 @@ ny_times_quote = """
     >shows the growth rate of cumulative cases over time, averaged over the previous week."
     """
 
-plot_df = format_plot_data(counties_df, plot_counties, states_df, plot_states)
+plot_df = format_plot_data(counties_df, plot_counties, states_df, plot_states, global_df, plot_countries)
 if category == 'Cases':
     st.subheader("New cases")
     alt_lc = alt.Chart(plot_df).mark_line(point=True).encode(
