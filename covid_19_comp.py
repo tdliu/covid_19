@@ -106,7 +106,7 @@ start_date = datetime.date(2020, 3, 10)
 category = 'Cases'
 plot_countries = []
 is_log = False
-if st.checkbox('Check for more options, e.g. countries, date, cases/deaths, log scale.'):
+if st.checkbox('Check for more options, e.g. countries, date, cases/deaths.'):
     plot_countries = st.multiselect('Countries', countries)
     start_date = st.date_input('Start date', datetime.date(2020, 3, 10))
     category = st.radio("Category", ('Cases', 'Deaths'))
