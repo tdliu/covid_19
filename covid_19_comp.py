@@ -110,7 +110,6 @@ if st.checkbox('Check for more options, e.g. countries, date, cases/deaths.'):
     start_date = st.date_input('Start date', datetime.date(2020, 3, 10))
     category = st.radio("Category", ('Cases', 'Deaths'))
 
-
 @st.cache
 def format_plot_data(counties_df, counties, states_df, states, global_df, countries):
     df = counties_df[counties_df['county_state'].isin(counties)]
@@ -206,5 +205,6 @@ else:
 
 st.write("----------")
 st.write("""
-    By [Tony Liu] (https://tonydl.com/) | source: [GitHub] (https://github.com/tdliu/covid_19) | data source: [NY Times] (https://github.com/nytimes/covid-19-data)
+    By [Tony Liu] (https://tonydl.com/) | source: [GitHub] (https://github.com/tdliu/covid_19) | 
+    data source: [NY Times] (https://github.com/nytimes/covid-19-data), [John Hopkins CSSE] (https://github.com/CSSEGISandData/COVID-19)
 """)
