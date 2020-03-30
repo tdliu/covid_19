@@ -195,12 +195,13 @@ if category == 'Cases':
     else:
         scale = 'linear'
 
+    # Plot growth rate, timeline normalised
     plot_line_chart(
         "Total cases for regions with more than 50 cases", norm_date_df, 'days_since_50_cases',
         'Days since 50 cases', 'total_cases', 'Count',
         ['geo', 'date', 'days_since_50_cases', 'total_cases'], scale
     )
-
+    # Plot growth rate, avg % daily change
     st.markdown(ny_times_quote)
     plot_line_chart(
         "Average daily change in total cases, over previous 7 days", plot_df, 'date', 'Date',
@@ -222,13 +223,13 @@ else:
         scale = 'symlog'
     else:
         scale = 'linear'
-
+    # Plot growth rate, timeline normalised
     plot_line_chart(
         "Total deaths for regions with more than 50 cases", norm_date_df, 'days_since_50_cases',
         'Days since 50 cases', 'total_deaths', 'Count',
         ['geo', 'date', 'days_since_50_cases', 'total_deaths'], scale
     )
-
+    # Plot growth rate, avg % daily change
     st.markdown(ny_times_quote)
     plot_line_chart(
         "Average daily change in total deaths, over previous 7 days", plot_df, 'date', 'Date',
