@@ -22,28 +22,33 @@ states_df = pd.read_csv(states_data_url)
 states_df['date'] = pd.to_datetime(states_df['date'])
 states_df.drop(columns=['fips'], inplace=True)
 
-# Get data from CSSEGISandData
-# Cases
-global_data_url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
-global_df = pd.read_csv(global_data_url)
-global_df.drop(['Province/State', 'Lat', 'Long'], inplace=True, axis=1)
-# Sum by country
-global_df = global_df.groupby('Country/Region').sum().reset_index()
-global_df = pd.melt(global_df, id_vars=['Country/Region'], value_vars=global_df.columns[1:])
-global_df.columns = ['country', 'date', 'cases']
-# Fix Taiwan bug
-global_df['country'].replace("Taiwan*", 'Taiwan', inplace=True)
 
-# Deaths
-global_data_url2 = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
-global_df2 = pd.read_csv(global_data_url2)
-global_df2.drop(['Province/State', 'Lat', 'Long'], inplace=True, axis=1)
-# Sum by country
-global_df2 = global_df2.groupby('Country/Region').sum().reset_index()
-global_df2 = pd.melt(global_df2, id_vars=['Country/Region'], value_vars=global_df2.columns[1:])
-global_df2.columns = ['country', 'date', 'deaths']
-# Fix Taiwan bug
-global_df2['country'].replace("Taiwan*", 'Taiwan', inplace=True)
+# Get data from CSSEGISandData
+def get_global_data(url, cases=True):
+    df = pd.read_csv(url)
+    df.drop(['Province/State', 'Lat', 'Long'], inplace=True, axis=1)
+    # Sum by country
+    df = df.groupby('Country/Region').sum().reset_index()
+    df = pd.melt(df, id_vars=['Country/Region'], value_vars=df.columns[1:])
+    if cases:
+        df.columns = ['country', 'date', 'cases']
+    else:
+        df.columns = ['country', 'date', 'deaths']
+    # Fix Taiwan bug
+    df['country'].replace("Taiwan*", 'Taiwan', inplace=True)
+    return df
+
+
+# Get global cases data
+global_df = get_global_data(
+    "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv"
+)
+
+# Get global deaths data
+global_df2 = get_global_data(
+    "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv",
+    cases=False
+)
 
 global_df = global_df.merge(global_df2, on=['country', 'date'])
 global_df['date'] = pd.to_datetime(global_df['date'])
