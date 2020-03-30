@@ -171,12 +171,12 @@ norm_date_df = plot_df[plot_df['total_cases'] > 50]
 norm_date_df['days_since_50_cases'] = norm_date_df.groupby("geo")['date'].rank("min") - 1
 
 
-def plot_line_chart(title, df, x, x_title, y, y_title, tooltip, scale='linear'):
+def plot_line_chart(title, df, x, x_title, y, y_title, tooltip, scale='linear', legend_orient="top-left"):
     st.subheader(title)
     alt_lc = alt.Chart(df).mark_line(point=True).encode(
         x=alt.X(x, axis=alt.Axis(title=x_title)),
         y=alt.Y(y, axis=alt.Axis(title=y_title), scale=alt.Scale(type=scale)),
-        color=alt.Color('geo', legend=alt.Legend(orient="top-left", fillColor='white')),
+        color=alt.Color('geo', legend=alt.Legend(orient=legend_orient, fillColor='white')),
         tooltip=tooltip
     )
     st.altair_chart(alt_lc, use_container_width=True)
@@ -204,13 +204,14 @@ if category == 'Cases':
     plot_line_chart(
         "Total cases for regions with more than 50 cases", norm_date_df, 'days_since_50_cases',
         'Days since 50 cases', 'total_cases', 'Count',
-        ['geo', 'date', 'days_since_50_cases', 'total_cases'], scale
+        ['geo', 'date', 'days_since_50_cases', 'total_cases'], scale, 'top'
     )
     # Plot growth rate, avg % daily change
     st.markdown(ny_times_quote)
     plot_line_chart(
         "Average daily change in total cases, over previous 7 days", plot_df, 'date', 'Date',
-        'avg_daily_change_rolling_7_cases', '%', ['geo', 'date', 'avg_daily_change_rolling_7_cases']
+        'avg_daily_change_rolling_7_cases', '%', ['geo', 'date', 'avg_daily_change_rolling_7_cases'],
+        legend_orient='top'
     )
 else:
     # Plot new deaths
@@ -232,13 +233,14 @@ else:
     plot_line_chart(
         "Total deaths for regions with more than 50 cases", norm_date_df, 'days_since_50_cases',
         'Days since 50 cases', 'total_deaths', 'Count',
-        ['geo', 'date', 'days_since_50_cases', 'total_deaths'], scale
+        ['geo', 'date', 'days_since_50_cases', 'total_deaths'], scale, 'top'
     )
     # Plot growth rate, avg % daily change
     st.markdown(ny_times_quote)
     plot_line_chart(
         "Average daily change in total deaths, over previous 7 days", plot_df, 'date', 'Date',
-        'avg_daily_change_rolling_7_deaths', '%', ['geo', 'date', 'avg_daily_change_rolling_7_deaths']
+        'avg_daily_change_rolling_7_deaths', '%', ['geo', 'date', 'avg_daily_change_rolling_7_deaths'],
+        legend_orient='top'
     )
 
 st.write("----------")
