@@ -106,14 +106,12 @@ st.markdown("Add or remove counties and states below.")
 plot_counties = st.multiselect("Counties", counties,
                                default=['San Francisco, California', 'Los Angeles, California'])
 plot_states = st.multiselect('States', states, default=['California', 'Washington'])
+plot_countries = st.multiselect('Countries', countries)
 
 # set defaults
 start_date = datetime.date(2020, 3, 10)
 category = 'Cases'
-plot_countries = []
-is_log = False
-if st.checkbox('Check for more options, e.g. countries, date, cases/deaths.'):
-    plot_countries = st.multiselect('Countries', countries)
+if st.checkbox('Check for more options, e.g. date, cases/deaths.'):
     start_date = st.date_input('Start date', datetime.date(2020, 3, 10))
     category = st.radio("Category", ('Cases', 'Deaths'))
 
