@@ -142,7 +142,6 @@ def format_plot_data(counties_df, counties, states_df, states, global_df, countr
         level=0, drop=True)
     df['avg_daily_change_rolling_7_deaths'] = df.groupby('geo')['perc_daily_change_deaths'].rolling(
         7).mean().reset_index(level=0, drop=True)
-    df = df[df['date'] >= pd.to_datetime(start_date)]
     return df
 
 
@@ -166,11 +165,13 @@ days_since_text = """
 """
 
 plot_df = format_plot_data(counties_df, plot_counties, states_df, plot_states, global_df, plot_countries)
+
 norm_date_df = plot_df[plot_df['total_cases'] > 50]
 norm_date_df['days_since_50_cases'] = norm_date_df.groupby("geo")['date'].rank("min") - 1
 norm_date_df['log_cases'] = np.log(norm_date_df['total_cases'])
 norm_date_df['log_deaths'] = np.log(norm_date_df['total_deaths'])
 
+plot_df = plot_df[plot_df['date'] >= pd.to_datetime(start_date)]
 
 def plot_line_chart(title, df, x, x_title, y, y_title, tooltip, legend_orient="top-left", zero=False, ):
     st.subheader(title)
