@@ -196,7 +196,7 @@ if category == 'Cases':
     plot_line_chart(
         "Total cases", plot_df, 'date', 'Date', 'total_cases', 'Count', ['geo', 'date', 'total_cases']
     )
-
+    st.markdown(days_since_text)
     # Plot growth rate, timeline normalised
     plot_line_chart(
         "Total cases for regions with more than 50 cases", norm_date_df, 'days_since_50_cases',
@@ -220,6 +220,7 @@ else:
     plot_line_chart(
         "Total deaths", plot_df, 'date', 'Date', 'total_deaths', 'Count', ['geo', 'date', 'new_deaths']
     )
+    st.markdown(days_since_text)
 
     # Plot growth rate, timeline normalised
     plot_line_chart(
