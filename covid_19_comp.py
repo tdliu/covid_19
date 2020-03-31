@@ -2,6 +2,7 @@ import streamlit as st
 import datetime
 import altair as alt
 import pandas as pd
+import numpy as np
 
 # Get data from NY Times
 
@@ -169,13 +170,15 @@ days_since_text = """
 plot_df = format_plot_data(counties_df, plot_counties, states_df, plot_states, global_df, plot_countries)
 norm_date_df = plot_df[plot_df['total_cases'] > 50]
 norm_date_df['days_since_50_cases'] = norm_date_df.groupby("geo")['date'].rank("min") - 1
+norm_date_df['log_cases'] = np.log(norm_date_df['total_cases'])
+norm_date_df['log_deaths'] = np.log(norm_date_df['total_deaths'])
 
 
-def plot_line_chart(title, df, x, x_title, y, y_title, tooltip, scale='linear', legend_orient="top-left"):
+def plot_line_chart(title, df, x, x_title, y, y_title, tooltip, legend_orient="top-left", zero=False, ):
     st.subheader(title)
     alt_lc = alt.Chart(df).mark_line(point=True).encode(
         x=alt.X(x, axis=alt.Axis(title=x_title)),
-        y=alt.Y(y, axis=alt.Axis(title=y_title), scale=alt.Scale(type=scale)),
+        y=alt.Y(y, axis=alt.Axis(title=y_title), scale=alt.Scale(zero=zero)),
         color=alt.Color('geo', legend=alt.Legend(orient=legend_orient, fillColor='white')),
         tooltip=tooltip
     )
@@ -191,20 +194,14 @@ if category == 'Cases':
 
     # Plot total cases
     plot_line_chart(
-        "Total cases", plot_df, 'date', 'Date', 'total_cases', 'Count', ['geo', 'date', 'new_cases']
+        "Total cases", plot_df, 'date', 'Date', 'total_cases', 'Count', ['geo', 'date', 'total_cases']
     )
-
-    st.markdown(days_since_text)
-    if st.checkbox('Log scale', value=True):
-        scale = 'symlog'
-    else:
-        scale = 'linear'
 
     # Plot growth rate, timeline normalised
     plot_line_chart(
         "Total cases for regions with more than 50 cases", norm_date_df, 'days_since_50_cases',
-        'Days since 50 cases', 'total_cases', 'Count',
-        ['geo', 'date', 'days_since_50_cases', 'total_cases'], scale, 'top'
+        'Days since 50 cases', 'log_cases', 'ln(Count)',
+        ['geo', 'date', 'days_since_50_cases', 'total_cases'], legend_orient='top', zero=False
     )
     # Plot growth rate, avg % daily change
     st.markdown(ny_times_quote)
@@ -224,16 +221,11 @@ else:
         "Total deaths", plot_df, 'date', 'Date', 'total_deaths', 'Count', ['geo', 'date', 'new_deaths']
     )
 
-    st.markdown(days_since_text)
-    if st.checkbox('Log scale', value=True):
-        scale = 'symlog'
-    else:
-        scale = 'linear'
     # Plot growth rate, timeline normalised
     plot_line_chart(
         "Total deaths for regions with more than 50 cases", norm_date_df, 'days_since_50_cases',
-        'Days since 50 cases', 'total_deaths', 'Count',
-        ['geo', 'date', 'days_since_50_cases', 'total_deaths'], scale, 'top'
+        'Days since 50 cases', 'log_deaths', 'ln(Count)',
+        ['geo', 'date', 'days_since_50_cases', 'total_deaths'], 'top', zero=False
     )
     # Plot growth rate, avg % daily change
     st.markdown(ny_times_quote)
