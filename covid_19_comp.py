@@ -101,7 +101,7 @@ st.dataframe(disp_df.style.highlight_max(axis=0), height=275)
 
 # Widgets
 st.subheader("Compare counties with states and other countries")
-st.markdown("Add or remove counties and states below.")
+st.markdown("Add or remove counties, states, and countries below.")
 
 plot_counties = st.multiselect("Counties", counties,
                                default=['San Francisco, California', 'Los Angeles, California'])
